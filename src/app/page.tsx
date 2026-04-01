@@ -2,9 +2,18 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Music, ArrowRight, Trophy } from "lucide-react";
-import Iridescence from "@/components/backgrounds/iridescence-bg";
-import ElectricBorder from "@/components/layout/electric-border";
+
+const Iridescence = dynamic(
+  () => import("@/components/backgrounds/iridescence-bg"),
+  { ssr: false }
+);
+
+const ElectricBorder = dynamic(
+  () => import("@/components/layout/electric-border"),
+  { ssr: false }
+);
 
 export default function HomePage() {
   const [phase, setPhase] = useState<"splash" | "transition" | "done">("splash");

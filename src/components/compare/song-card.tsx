@@ -15,7 +15,7 @@ export function SongCard({ song, onClick, isSelected, isDimmed }: SongCardProps)
     <div
       onClick={onClick}
       className={cn(
-        "cursor-pointer transition-all duration-300 rounded-2xl border-2 px-5 py-4",
+        "cursor-pointer transition-all duration-150 rounded-2xl border-2 px-5 py-4",
         "bg-white/5 backdrop-blur-md",
         "flex items-center gap-4",
         isSelected
@@ -46,9 +46,14 @@ export function SongCard({ song, onClick, isSelected, isDimmed }: SongCardProps)
         </p>
       </div>
 
-      {/* Choose button */}
-      <div className="shrink-0 px-5 py-2 rounded-full bg-gaga-pink/10 border border-gaga-pink/30 text-gaga-pink text-sm font-semibold transition-all duration-200 hover:bg-gaga-pink hover:text-white">
-        Choose
+      {/* Choose indicator */}
+      <div className={cn(
+        "shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-150 pointer-events-none",
+        isSelected
+          ? "bg-gaga-pink text-white"
+          : "bg-gaga-pink/10 border border-gaga-pink/30 text-gaga-pink"
+      )}>
+        {isSelected ? "✓" : "Choose"}
       </div>
     </div>
   );

@@ -162,30 +162,31 @@ export function RankingTable({ scope, initialFilter, showFilter = true }: Rankin
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border overflow-visible">
-          <Table>
+        <div className="rounded-lg border border-border overflow-x-auto">
+          <Table className="w-full table-fixed sm:table-auto">
             <TableHeader>
               <TableRow className="bg-gaga-card/50 hover:bg-gaga-card/50">
-                <TableHead className="w-16 text-center">#</TableHead>
-                <TableHead>Title</TableHead>
+                <TableHead className="w-10 sm:w-16 text-center">#</TableHead>
+                <TableHead className="truncate">Title</TableHead>
                 <TableHead className="hidden sm:table-cell">Album</TableHead>
                 {scope === "global" ? (
                   <>
-                    <TableHead className="text-center overflow-visible">
+                    <TableHead className="hidden sm:table-cell text-center overflow-visible">
                       <span className="inline-flex items-center gap-1">
                         Compared
                         <InfoTooltip text="Total number of times this song has been compared by all users, wins and losses included." />
                       </span>
                     </TableHead>
-                    <TableHead className="text-center overflow-visible">
+                    <TableHead className="w-16 sm:w-auto text-center overflow-visible">
                       <span className="inline-flex items-center gap-1">
-                        ELO Score
+                        <span className="sm:hidden">ELO</span>
+                        <span className="hidden sm:inline">ELO Score</span>
                         <InfoTooltip text="Rating based on the ELO system (like in chess). Winning against a higher-rated song gives more points. Starts at 1500." />
                       </span>
                     </TableHead>
                   </>
                 ) : (
-                  <TableHead className="text-center">Wins</TableHead>
+                  <TableHead className="w-14 sm:w-auto text-center">Wins</TableHead>
                 )}
               </TableRow>
             </TableHeader>
@@ -201,25 +202,25 @@ export function RankingTable({ scope, initialFilter, showFilter = true }: Rankin
                   <TableCell className={cn("text-center text-lg", getRankStyle(song.rank))}>
                     {song.rank}
                   </TableCell>
-                  <TableCell>
-                    <div>
+                  <TableCell className="max-w-0 sm:max-w-none">
+                    <div className="truncate">
                       <span className="font-medium">{song.title}</span>
                       {song.collaborator && (
-                        <span className="text-xs text-gaga-pink ml-2">
-                          feat. {song.collaborator}
+                        <span className="text-xs text-gaga-pink ml-1 sm:ml-2">
+                          ft. {song.collaborator}
                         </span>
                       )}
-                      <span className="sm:hidden block text-xs text-muted-foreground mt-0.5">
-                        {song.albumName}
-                      </span>
                     </div>
+                    <span className="sm:hidden block text-xs text-muted-foreground truncate">
+                      {song.albumName}
+                    </span>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                     {song.albumName}
                   </TableCell>
                   {scope === "global" ? (
                     <>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden sm:table-cell text-center">
                         <Badge
                           variant="outline"
                           className={cn(

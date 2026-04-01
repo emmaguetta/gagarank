@@ -89,17 +89,24 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
     const winnerSong = winner === "a" ? songA : songB;
     const loserSong = winner === "a" ? songB : songA;
 
-    try {
-      const res = await fetch("/api/compare", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          winnerId: winnerSong.id,
-          loserId: loserSong.id,
-          album: currentFilter,
-        }),
-      });
+    // Fire comparison POST and next pair fetch in parallel
+    const comparePromise = fetch("/api/compare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        winnerId: winnerSong.id,
+        loserId: loserSong.id,
+        album: currentFilter,
+      }),
+    });
 
+    // Brief visual feedback, then load next pair immediately
+    setTimeout(() => {
+      fetchPair();
+    }, 150);
+
+    try {
+      const res = await comparePromise;
       if (res.ok) {
         setComparisonCount((c) => c + 1);
         fetchRankings();
@@ -107,11 +114,6 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
     } catch (error) {
       console.error("Failed to record comparison:", error);
     }
-
-    // Fetch next pair after animation
-    setTimeout(() => {
-      fetchPair();
-    }, 600);
   };
 
   const handleSkip = async () => {
