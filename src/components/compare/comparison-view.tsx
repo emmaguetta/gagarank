@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { SongCard } from "@/components/compare/song-card";
 import { SongWithAlbum } from "@/types";
 import { albums } from "@/data/songs";
@@ -33,6 +33,7 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
   const [estimatedTotal, setEstimatedTotal] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [undoing, setUndoing] = useState(false);
+  const busyRef = useRef(false);
 
   const fetchPair = useCallback(async () => {
     setLoading(true);
@@ -82,38 +83,39 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
   }, [fetchPair, fetchRankings]);
 
   const handleChoice = async (winner: "a" | "b") => {
-    if (selected || !songA || !songB) return;
+    if (busyRef.current || !songA || !songB) return;
+    busyRef.current = true;
 
     setSelected(winner);
 
     const winnerSong = winner === "a" ? songA : songB;
     const loserSong = winner === "a" ? songB : songA;
 
-    // Fire comparison POST and next pair fetch in parallel
-    const comparePromise = fetch("/api/compare", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        winnerId: winnerSong.id,
-        loserId: loserSong.id,
-        album: currentFilter,
+    // Run visual feedback delay and compare POST in parallel
+    // Both must complete before we fetch the next pair
+    const [, compareRes] = await Promise.all([
+      new Promise((r) => setTimeout(r, 150)),
+      fetch("/api/compare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          winnerId: winnerSong.id,
+          loserId: loserSong.id,
+          album: currentFilter,
+        }),
       }),
-    });
+    ]);
 
-    // Brief visual feedback, then load next pair immediately
-    setTimeout(() => {
-      fetchPair();
-    }, 150);
-
-    try {
-      const res = await comparePromise;
-      if (res.ok) {
-        setComparisonCount((c) => c + 1);
-        fetchRankings();
-      }
-    } catch (error) {
-      console.error("Failed to record comparison:", error);
+    if (compareRes.ok) {
+      setComparisonCount((c) => c + 1);
     }
+
+    // Now fetch next pair — comparison is guaranteed recorded
+    await fetchPair();
+    busyRef.current = false;
+
+    // Update rankings in background
+    fetchRankings();
   };
 
   const handleSkip = async () => {
@@ -253,6 +255,7 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
               onClick={() => handleChoice("a")}
               isSelected={selected === "a"}
               isDimmed={selected === "b"}
+              disabled={selected !== null || loading}
             />
 
             <div className="flex items-center justify-center">
@@ -264,6 +267,7 @@ export function ComparisonView({ albumFilter = "all" }: ComparisonViewProps) {
               onClick={() => handleChoice("b")}
               isSelected={selected === "b"}
               isDimmed={selected === "a"}
+              disabled={selected !== null || loading}
             />
 
             {/* Skip & Undo buttons */}

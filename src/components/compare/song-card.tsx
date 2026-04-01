@@ -8,14 +8,16 @@ interface SongCardProps {
   onClick: () => void;
   isSelected?: boolean;
   isDimmed?: boolean;
+  disabled?: boolean;
 }
 
-export function SongCard({ song, onClick, isSelected, isDimmed }: SongCardProps) {
+export function SongCard({ song, onClick, isSelected, isDimmed, disabled }: SongCardProps) {
   return (
     <div
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       className={cn(
-        "cursor-pointer transition-all duration-150 rounded-2xl border-2 px-5 py-4",
+        "transition-all duration-150 rounded-2xl border-2 px-5 py-4",
+        disabled ? "cursor-default" : "cursor-pointer",
         "bg-white/5 backdrop-blur-md",
         "flex items-center gap-4",
         isSelected
