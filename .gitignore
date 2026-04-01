@@ -24,12 +24,6 @@
 .DS_Store
 *.pem
 .mcp.json
-PLAN.md
-
-# claude code
-.claude/settings.local.json
-.claude/plans/
-.claude/skills/
 
 # debug
 npm-debug.log*
